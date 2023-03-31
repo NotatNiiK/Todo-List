@@ -50,6 +50,12 @@
         font-size: 1.25rem;
         line-height: 160%;
         color: #FFFFFF;
+        transition: all .4s ease 0s;
+        @media all and (min-width: 62em) {
+            &:hover{
+                color: #d7d5d5;
+            }
+        }
     }
 }
 
@@ -57,5 +63,11 @@
     font-weight: 700;
     color: #323050;
     text-decoration: underline;
+    @media all and (min-width: 62em) {
+        &:hover{
+            color: #312e5b;
+            text-decoration: none;
+        }
+    }
 }
 </style>

@@ -4,6 +4,10 @@
   </Transition>
 </template>
 
+<script>
+
+</script>
+
 <style lang="scss" scoped>
 .v-enter-active,
 .v-leave-active {
