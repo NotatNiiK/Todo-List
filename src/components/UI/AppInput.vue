@@ -1,10 +1,17 @@
 <template>
-    <input type="text" class="input">
+    <input 
+        type="text" 
+        class="input"
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
+    >
 </template>
 
 <script>
 export default {
-    name: 'AppInput'
+    name: 'AppInput',
+    props: ['modelValue'],
+    emits: ['update:task']
 }
 </script>
 

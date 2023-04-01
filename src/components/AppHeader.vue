@@ -7,7 +7,7 @@
             <nav class="header__nav">
                 <ul class="header__list">
                     <li class="header__item">
-                        <RouterLink class="header__link" to="/main" active-class="active-router-link">Introduction</RouterLink>
+                        <RouterLink class="header__link" to="/" active-class="active-router-link">Introduction</RouterLink>
                     </li>
                     <li class="header__item">
                         <RouterLink class="header__link" to="/todo" active-class="active-router-link">Todo</RouterLink>
