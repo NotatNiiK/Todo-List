@@ -6,23 +6,46 @@
                 <div class="todo__body">
                     <form action="#" @submit.prevent class="todo__form">
                         <div class="todo__inputs">
-                            <AppInput class="todo__input" placeholder="Add task..." v-model="task"></AppInput>
+                            <AppInput 
+                                class="todo__input" 
+                                placeholder="Add task..." 
+                                v-model="task" 
+                                @focus="inputFocus"
+                                @blur="blurInput"
+                            ></AppInput>
                             <AppButton class="todo__button" @click="createTodo">Add</AppButton>
+                            <AppButton class="todo__button" @click="clearTodos">Clear all</AppButton>
                         </div>
                         <Transition>
                             <div class="todo__validation" v-if="isValidationNotCorrect">{{ validationText }}</div>
                         </Transition>
+                        <div class="todo__statistic">
+                            <p>Number of tasks: <strong>{{ todos.length }}</strong></p>
+                            <p>Ready tasks: <strong>{{ readyTasks }}</strong></p>
+                        </div>
                     </form>
                     <TransitionGroup name="list" tag="ul" class="todo__list" v-if="todos.length !== 0">
                         <TodoItem 
-                            v-for="todo in todos" 
+                            v-for="todo in visibleTodos" 
                             :key="todo.id" 
                             :todo="todo" 
                             @delete="deleteTodo"
                             @save-change="saveChange"
+                            @ready-todo="readyTodo"
                         />
                     </TransitionGroup>
                     <div class="todo__empty" v-else>Create some task!</div>
+                    <div class="todo__paggination" v-if="todos.length > 5">
+                        <button 
+                            class="todo__paggination-button" 
+                            v-for="(n, idx) in pages" 
+                            :key="idx"
+                            @click="changePage(n)"
+                            :class="isPagginationButtonActive(n)"
+                        >
+                            {{ n }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -42,7 +65,11 @@ export default {
             task: '',
             isValidationNotCorrect: false,
             validationText: '',
-            todos: []
+            todos: [],
+            maxTasksPerPage: 5,
+            startIndex: 0,
+            endIndex: 5,
+            currentPage: 1
         }
     },
     methods: {
@@ -70,25 +97,74 @@ export default {
             this.todos = this.todos.filter(todo => todo.id !== ID);
             localStorage.setItem('todos', JSON.stringify(this.todos));
         },
-        saveChange(chagenedTodo){
+        saveChange(todo){
+            this.saveTodoChangeInStorage(todo, 'title')
+        },
+        changePage(n){
+            this.currentPage = n;
+            this.endIndex = this.currentPage * this.maxTasksPerPage
+            this.startIndex = this.endIndex - this.maxTasksPerPage;
+           /*  window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            }); */
+        },
+        isPagginationButtonActive(n){
+            const isActive = this.currentPage === n ? 'paggination-button-active' : '';
+            return isActive;
+        },
+        readyTodo(todo){
+            this.saveTodoChangeInStorage(todo, 'completed')
+        },
+        saveTodoChangeInStorage(someTodo, key){
             for(let i = 0; i < this.todos.length; i++){
                 const todo = this.todos[i];
-                if(todo.id === chagenedTodo.id){
-                    todo.title = chagenedTodo.title;
+                if(todo.id === someTodo.id){
+                    todo[key] = someTodo[key];
                 }
             }
             localStorage.setItem('todos', JSON.stringify(this.todos));
+        },
+        inputFocus(e){
+            this.isValidationNotCorrect = false;
+            e.target.placeholder = '';
+        },
+        blurInput(e){
+            e.target.placeholder = 'Add task...';
+        },
+        clearTodos(){
+            this.todos = [];
+            localStorage.clear();
         }
     },
     mounted(){
         this.$store.dispatch('getTodos');
         this.todos = JSON.parse(localStorage.getItem('todos'));
     },
+    watch: {
+        task(newValue){
+            if(newValue.length > 0){
+                this.isValidationNotCorrect = false;
+            }
+        }
+    },
+    computed:{
+        pages(){
+            return Math.ceil(this.todos.length / this.maxTasksPerPage); 
+        },
+        visibleTodos(){
+            return this.todos.slice(this.startIndex, this.endIndex);
+        },
+        readyTasks(){
+            return this.todos.filter(todo => todo.completed).length;
+        }
+    }
 }
 </script>
 
 <style lang="scss" scoped>
 .todo{
+    flex: 1 1 auto;
     &__container{
         position: relative;
         z-index: 2;
@@ -100,16 +176,16 @@ export default {
         display: flex;
     }
     &__validation{
-        color: rgb(177, 79, 79);
+        color: red;
         font-size: 1.5rem;
         padding: 10px 0 0;
     }
     &__button{
-        flex: 0 0 150px;
+        flex: 0 0 120px;
+        margin-left: 15px;
     }
     &__input{
         flex: 1 1 auto;
-        margin-right: 20px;
     }
     &__empty{
         font-size: 1.5rem;
@@ -120,7 +196,59 @@ export default {
         font-weight: 700;
         letter-spacing: 2px;
     }
+    &__statistic{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 25px 0 0;
+        font-size: 1.3rem;
+        p{
+            &:first-child{
+                margin-right: 15px;
+            }
+        }
+    }
+    &__paggination{
+        display: flex;
+    }
+    &__paggination-button{
+        cursor: pointer;
+        margin-right: 15px;
+        width: 40px;
+        height: 40px;
+        background: #FFFFFF;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: 700;
+        font-size: 18px;
+        line-height: 178%;
+        color: #333333;
+        transition: all .4s ease 0s;
+        @media all and (min-width: 62em){
+            &:hover{
+                background: #d2d1d1;
+            }
+        }
+        &.active{
+            background: red;
+        }
+    }
 }
+
+.paggination-button-active{
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.57);
+    border: 2px solid #fff;
+    @media all and (min-width: 62em){
+        &:hover{
+            background: rgba(255, 255, 255, 0.57);
+        }
+    }
+}
+
 .list-move, 
 .list-enter-active,
 .list-leave-active {

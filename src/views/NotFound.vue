@@ -3,7 +3,7 @@
         <div class="not-found">
             <div class="not-found__container">
                 <div class="not-found__body">
-                    <h1 class="not-found__title">Page Not found</h1>
+                    <h1 class="not-found__title">Page Not found!</h1>
                     <RouterLink to="/">
                         <AppButton class="not-found__button">Back</AppButton>
                     </RouterLink>

@@ -1,7 +1,7 @@
 <template>
     <header class="header">
         <div class="header__container">
-            <RouterLink to="/main" class="header__logo">
+            <RouterLink to="/" class="header__logo">
                 <img src="../assets/img/logo.svg" alt="logo">
             </RouterLink>
             <nav class="header__nav">

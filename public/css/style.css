@@ -40,6 +40,8 @@ html, body {
 .wrapper {
   overflow: hidden;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 body {
@@ -50,7 +52,7 @@ body {
   background: #8E2DE2;
 }
 body::before, body::after {
-  position: absolute;
+  position: fixed;
   content: "";
   width: 86%;
   height: 75%;

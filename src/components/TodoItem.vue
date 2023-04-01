@@ -1,6 +1,6 @@
 <template>
-    <li class="todo__item item-todo">
-        <div class="item-todo__content">
+    <li class="todo__item item-todo" :class="{isReady: localTodo.completed}">
+        <div class="item-todo__content" >
             <div class="item-todo__title" v-if="isEditNotActive">{{ title }}</div>
             <form action="#" class="item-todo__edit" @submit.prevent v-else>
                 <textarea type="text" class="item-todo__input" v-model="localTodo.title" ref="textarea"></textarea>
@@ -8,7 +8,7 @@
             </form>
         </div>
         <div class="item-todo__buttons">
-            <button class="item-todo__button icon-check-markom"></button>
+            <button class="item-todo__button icon-check-markom" @click="readyTodo"></button>
             <button class="item-todo__button icon-edit" @click="editTodo"></button>
             <button class="item-todo__button icon-delete" @click="deleteTodo"></button>
         </div>
@@ -23,7 +23,7 @@ export default {
     data(){
         return {
             localTodo: this.todo,
-            isEditNotActive: true
+            isEditNotActive: true,
         }
     },
     methods: {
@@ -40,6 +40,10 @@ export default {
         saveTodoEdit(){
             this.isEditNotActive = true;
             this.$emit('saveChange', this.localTodo);
+        },
+        readyTodo(){
+            this.localTodo.completed = true;
+            this.$emit('readyTodo', this.localTodo);
         }
     },
     computed: {
@@ -126,6 +130,17 @@ export default {
                 }
             }
         }
+    }
+}
+
+.isReady{
+    color: #fff;
+    background: rgb(13, 177, 114);
+    .item-todo__title{
+        color: #fff;
+    }
+    .item-todo__button{
+        color: #fff;
     }
 }
 </style>
