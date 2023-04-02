@@ -6,11 +6,17 @@
                 <textarea type="text" class="item-todo__input" v-model="localTodo.title" ref="textarea"></textarea>
                 <button class="item-todo__edit-button" @click="saveTodoEdit">Save</button>
             </form>
+            <div class="item-todo__time">
+                {{ localTodo.time }}
+                <span v-if="localTodo.isEdited">(edited)</span>
+            </div>
         </div>
         <div class="item-todo__buttons">
-            <button class="item-todo__button icon-check-markom" @click="readyTodo"></button>
-            <button class="item-todo__button icon-edit" @click="editTodo"></button>
-            <button class="item-todo__button icon-delete" @click="deleteTodo"></button>
+            <template v-if="!localTodo.completed">
+                <button class="item-todo__button icon-check-markom" title="Ready" @click="readyTodo"></button>
+                <button class="item-todo__button icon-edit" title="Edit" @click="editTodo"></button>
+            </template>
+            <button class="item-todo__button icon-delete" title="Delete" @click="deleteTodo"></button>
         </div>
     </li>
 </template>
@@ -18,12 +24,23 @@
 <script>
 export default {
     props: {
-        todo: Object,
+        todo: {
+            type: Object,
+            required: true,
+            default(){
+                return {
+                    id: Date.now(),
+                    title: 'Some task',
+                    completed: false,
+                }
+            }
+        },
     },
     data(){
         return {
             localTodo: this.todo,
             isEditNotActive: true,
+            tmpTodoTitle: ''
         }
     },
     methods: {
@@ -32,16 +49,23 @@ export default {
             this.$emit('delete', todoID);
         },
         editTodo(){
+            this.tmpTodoTitle = this.localTodo.title;
             this.isEditNotActive = false;
             setTimeout(() => {
                 this.$refs.textarea.focus();
             }, 0);
         },
         saveTodoEdit(){
+            if(this.localTodo.title !== this.tmpTodoTitle){
+                this.localTodo.isEdited = true;
+            }
             this.isEditNotActive = true;
             this.$emit('saveChange', this.localTodo);
         },
         readyTodo(){
+            if(!this.isEditNotActive){
+                this.isEditNotActive = true;
+            }
             this.localTodo.completed = true;
             this.$emit('readyTodo', this.localTodo);
         }
@@ -59,20 +83,39 @@ export default {
 
 <style lang="scss" scoped> 
 .item-todo{
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: rgba(255, 255, 255, 0.81);
     border-radius: 5px;
-    padding: 10px 30px;
+    padding: 10px 25px;
     margin-bottom: 30px;
+    transition: all .3s ease 0s;
+    @media all and (max-width: 48em){
+        display: block;
+    }
+
+    &__content{
+        flex:  1 1 auto;
+        @media all and (max-width: 48em){
+            margin-bottom: 30px;
+        }
+    }
     &__title{
         font-weight: 700;
-        font-size: 20px;
+        font-size: 1.2rem;
         line-height: 160%;
         color: #333333;
+        margin-bottom: 10px;
+        @media all and (max-width: 48em){
+            font-size: 1rem;
+        }
     }
     &__input{
+        width: 70%;
+        height: 60px;
+        min-width: 200px;
         border: none;
         outline: none;
         padding: 7px 5px;
@@ -83,6 +126,7 @@ export default {
     &__edit{
         display: flex;
         align-items: flex-end;
+        margin-bottom: 10px;
     }
     &__edit-button{
         cursor: pointer;
@@ -100,6 +144,18 @@ export default {
                 color: #fff;
             }
         }
+    }
+    &__time{
+        color: #333;
+        @media all and (max-width: 48em){
+            font-size: 0.875rem;
+        }
+    }
+    &__buttons{
+        flex: 0 0 200px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
     }
     &__button{
         font-weight: 700;
@@ -134,13 +190,24 @@ export default {
 }
 
 .isReady{
+    border: 2px dashed #fff;
     color: #fff;
-    background: rgb(13, 177, 114);
+    background: #2ebf91;
     .item-todo__title{
+        color: #fff;
+    }
+    .item-todo__time{
         color: #fff;
     }
     .item-todo__button{
         color: #fff;
+        &.icon-delete{
+            @media all and (min-width: 62em){
+                &:hover{
+                    color: rgb(117, 48, 48);
+                }
+            }
+        }
     }
 }
 </style>

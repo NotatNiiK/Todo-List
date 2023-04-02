@@ -23,6 +23,10 @@ export default {
     background: none;
     border: none;
     border-bottom: 3px solid #fff;
+    transition: all .4s ease 0s;
+    &:focus{
+        border-color: #9e2e6c;
+    }
     &::placeholder{
         font-weight: 700;
         font-size: 1.25rem;

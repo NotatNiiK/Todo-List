@@ -54,11 +54,13 @@
 
 <script>
 import AppHeader from '../components/AppHeader';
-import TodoItem from '../components/TodoItem.vue'
+import TodoItem from '../components/TodoItem.vue';
+import generateTime from '@/api/generateTime';
+import getTodos from '@/api/api';
 export default {
     components: {
         AppHeader,
-        TodoItem
+        TodoItem,
     },
     data(){
         return {
@@ -76,8 +78,11 @@ export default {
         createTodo(){
             const newTodo = {
                 id: Date.now(),
-                title: this.task
+                title: this.task,
+                isEdited: false,
+                time: generateTime()
             }
+            console.log(newTodo)
             const isTodoInArray = this.todos.find(todo => todo.title.toLowerCase() === newTodo.title.toLowerCase());
             if(this.task.length === 0){
                 this.isValidationNotCorrect = true;
@@ -90,7 +95,7 @@ export default {
             }
             if(isTodoInArray){
                 this.isValidationNotCorrect = true;
-                this.validationText = 'This task already exist'
+                this.validationText = 'This task already exists'
             }
         },
         deleteTodo(ID){
@@ -104,10 +109,6 @@ export default {
             this.currentPage = n;
             this.endIndex = this.currentPage * this.maxTasksPerPage
             this.startIndex = this.endIndex - this.maxTasksPerPage;
-           /*  window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            }); */
         },
         isPagginationButtonActive(n){
             const isActive = this.currentPage === n ? 'paggination-button-active' : '';
@@ -135,10 +136,10 @@ export default {
         clearTodos(){
             this.todos = [];
             localStorage.clear();
-        }
+        },
     },
     mounted(){
-        this.$store.dispatch('getTodos');
+        getTodos();
         this.todos = JSON.parse(localStorage.getItem('todos'));
     },
     watch: {
@@ -164,20 +165,24 @@ export default {
 
 <style lang="scss" scoped>
 .todo{
+    padding: 100px 0 40px;
     flex: 1 1 auto;
-    &__container{
-        position: relative;
-        z-index: 2;
-    }
     &__form{
         padding: 40px 0;
     }
     &__inputs{
         display: flex;
+        @media all and (max-width: 48em){
+        }
+    }
+    &__input{
+        @media all and (max-width: 48em){
+            flex: 0 0 600px;
+        }
     }
     &__validation{
         color: red;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         padding: 10px 0 0;
     }
     &__button{
@@ -188,7 +193,7 @@ export default {
         flex: 1 1 auto;
     }
     &__empty{
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         text-align: center;
         line-height: 120%;
         padding: 30px 0;
@@ -201,7 +206,7 @@ export default {
         align-items: center;
         justify-content: space-between;
         padding: 25px 0 0;
-        font-size: 1.3rem;
+        font-size: 1rem;
         p{
             &:first-child{
                 margin-right: 15px;
@@ -252,7 +257,7 @@ export default {
 .list-move, 
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.5s ease;
+  transition: all 0.3s ease;
 }
 
 .list-enter-from,

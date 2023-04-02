@@ -17,7 +17,6 @@ export default {
     font-size: 1.25rem;
     line-height: 160%;
     color: #FFFFFF;
-    background: #8E2DE2;
     border: 2px solid #FFFFFF;
     border-radius: 5px;
     padding: 7px 15px;
@@ -25,7 +24,7 @@ export default {
     @media all and (min-width: 62em){
         &:hover{
             background: #fff;
-            color: #8E2DE2;
+            color: #333;
         }
     }
 }

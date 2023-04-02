@@ -18,7 +18,7 @@
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .main{
     &__container{
         padding: 80px 0;
