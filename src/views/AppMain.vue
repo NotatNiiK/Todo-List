@@ -9,9 +9,9 @@
                         It is a list of tasks or activities that need to be completed, typically ordered by priority. 
                         To-do lists can be created on paper or electronically, and they can be used for personal, professional, or academic purposes.
                     </p>
-                    <RouterLink to="/todo" class="main__button">
-                        <AppButton>Create task</AppButton>
-                    </RouterLink>
+                    <router-link to="/todo" class="main__button">
+                        <app-button>Create task</app-button>
+                    </router-link>
                 </div>
             </div>
         </section>

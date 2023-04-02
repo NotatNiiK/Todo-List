@@ -4,9 +4,9 @@
             <div class="not-found__container">
                 <div class="not-found__body">
                     <h1 class="not-found__title">Page Not found!</h1>
-                    <RouterLink to="/">
-                        <AppButton class="not-found__button">Back</AppButton>
-                    </RouterLink>
+                    <router-link to="/">
+                        <app-button class="not-found__button">Back</app-button>
+                    </router-link>
                 </div>
             </div>
         </div>

@@ -1,19 +1,19 @@
 <template>
     <header class="header" :class="{scrolled: isScrolled}">
         <div class="header__container">
-            <RouterLink to="/" class="header__logo">
+            <router-link to="/" class="header__logo">
                 <img src="../assets/img/logo.svg" alt="logo">
-            </RouterLink>
+            </router-link>
             <nav class="header__nav" :class="{'nav-active': isBurgerActive}">
                 <ul class="header__list">
                     <li class="header__item">
-                        <RouterLink class="header__link" to="/" active-class="active-router-link">Introduction</RouterLink>
+                        <router-link class="header__link" to="/" active-class="active-router-link">Introduction</router-link>
                     </li>
                     <li class="header__item">
-                        <RouterLink class="header__link" to="/todo" active-class="active-router-link">Todo</RouterLink>
+                        <router-link class="header__link" to="/todo" active-class="active-router-link">Todo</router-link>
                     </li>
                     <li class="header__item">
-                        <RouterLink class="header__link" to="/authorization" active-class="active-router-link">Authorization</RouterLink>
+                        <router-link class="header__link" to="/authorization" active-class="active-router-link">Authorization</router-link>
                     </li>
                 </ul>
             </nav>

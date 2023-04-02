@@ -15,7 +15,7 @@
                             <input type="text" id="password" class="authorization__input" placeholder="Enter password...">
                         </div>
                         <div class="authorization__buttons">
-                            <AppButton class="authorization__button">Log in</AppButton>
+                            <app-button class="authorization__button">Log in</app-button>
                             <button class="authorization__create">Create account</button>
                         </div>
                     </form>
@@ -29,13 +29,8 @@
 import AppHeder from '../components/AppHeader';
 export default {
     components:{
-        AppHeder
+        AppHeder 
     },
-   /*  data(){
-        return {
-            currentComponent
-        }
-    } */
 }
 </script>
 

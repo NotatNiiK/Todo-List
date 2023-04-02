@@ -1,31 +1,54 @@
 <template>
     <div class="wrapper">
-        <AppHeader />
+        <app-header />
         <section class="todo">
             <div class="todo__container">
                 <div class="todo__body">
                     <form action="#" @submit.prevent class="todo__form">
-                        <div class="todo__inputs">
-                            <AppInput 
+                        <div class="todo__inputs" v-if="currentPage === 1">
+                            <app-input 
                                 class="todo__input" 
                                 placeholder="Add task..." 
                                 v-model="task" 
                                 @focus="inputFocus"
                                 @blur="blurInput"
-                            ></AppInput>
-                            <AppButton class="todo__button" @click="createTodo">Add</AppButton>
-                            <AppButton class="todo__button" @click="clearTodos">Clear all</AppButton>
+                            ></app-input>
+                            <app-button class="todo__button" @click="createTodo">Add</app-button>
+                            <app-button class="todo__button" @click="clearTodos">Clear all</app-button>
                         </div>
-                        <Transition>
+                        <transition>
                             <div class="todo__validation" v-if="isValidationNotCorrect">{{ validationText }}</div>
-                        </Transition>
+                        </transition>
+                       <!--  <div class="todo__tabs tabs-todo">
+                            <button 
+                                class="tabs-todo__tab" 
+                                @click="changeTab('all')"
+                                :class="{'active-tab': filteredBy == 'all'}"
+                            >
+                                All
+                            </button>
+                            <button 
+                                class="tabs-todo__tab" 
+                                @click="changeTab('pending')"
+                                :class="{'active-tab': filteredBy == 'pending'}"
+                            >
+                                Pending
+                            </button>
+                            <button 
+                                class="tabs-todo__tab" 
+                                @click="changeTab('completed')"
+                                :class="{'active-tab': filteredBy == 'completed'}"
+                            >
+                                Completed
+                            </button>
+                        </div> -->
                         <div class="todo__statistic">
                             <p>Number of tasks: <strong>{{ todos.length }}</strong></p>
                             <p>Ready tasks: <strong>{{ readyTasks }}</strong></p>
                         </div>
                     </form>
-                    <TransitionGroup name="list" tag="ul" class="todo__list" v-if="todos.length !== 0">
-                        <TodoItem 
+                    <transition-group name="list" tag="ul" class="todo__list" v-if="todos.length !== 0">
+                        <todo-item 
                             v-for="todo in visibleTodos" 
                             :key="todo.id" 
                             :todo="todo" 
@@ -33,15 +56,15 @@
                             @save-change="saveChange"
                             @ready-todo="readyTodo"
                         />
-                    </TransitionGroup>
+                    </transition-group>
                     <div class="todo__empty" v-else>Create some task!</div>
-                    <div class="todo__paggination" v-if="todos.length > 5">
+                    <div class="todo__paggination" v-if="todos.length > 5 && visibleTodos.length !== 0">
                         <button 
                             class="todo__paggination-button" 
                             v-for="(n, idx) in pages" 
                             :key="idx"
                             @click="changePage(n)"
-                            :class="isPagginationButtonActive(n)"
+                            :disabled="isPagginationButtonActive(n)"
                         >
                             {{ n }}
                         </button>
@@ -71,7 +94,8 @@ export default {
             maxTasksPerPage: 5,
             startIndex: 0,
             endIndex: 5,
-            currentPage: 1
+            currentPage: 1,
+            filteredBy: 'all'
         }
     },
     methods: {
@@ -100,6 +124,10 @@ export default {
         },
         deleteTodo(ID){
             this.todos = this.todos.filter(todo => todo.id !== ID);
+            if(this.todos.length % 5 === 0){
+                this.currentPage--;
+                this.changePage(this.currentPage)
+            }
             localStorage.setItem('todos', JSON.stringify(this.todos));
         },
         saveChange(todo){
@@ -111,7 +139,7 @@ export default {
             this.startIndex = this.endIndex - this.maxTasksPerPage;
         },
         isPagginationButtonActive(n){
-            const isActive = this.currentPage === n ? 'paggination-button-active' : '';
+            const isActive = this.currentPage === n;
             return isActive;
         },
         readyTodo(todo){
@@ -137,6 +165,12 @@ export default {
             this.todos = [];
             localStorage.clear();
         },
+        /* changeTab(value){
+            this.filteredBy = value;
+            this.startIndex = 0;
+            this.endIndex = 5;
+            this.currentPage = 1;
+        } */
     },
     mounted(){
         getTodos();
@@ -154,6 +188,13 @@ export default {
             return Math.ceil(this.todos.length / this.maxTasksPerPage); 
         },
         visibleTodos(){
+           /*  if(this.filteredBy === 'all'){
+                return this.todos.slice(this.startIndex, this.endIndex);
+            }
+            if(this.filteredBy === 'pending'){
+                return this.todos.slice(this.startIndex, this.endIndex).filter(todo => !todo.completed);
+            }
+            return this.todos.slice(this.startIndex, this.endIndex).filter(todo => todo.completed); */
             return this.todos.slice(this.startIndex, this.endIndex);
         },
         readyTasks(){
@@ -237,21 +278,38 @@ export default {
                 background: #d2d1d1;
             }
         }
-        &.active{
-            background: red;
+        &:disabled{
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.57);
+            border: 2px solid #fff;
+            @media all and (min-width: 62em){
+                &:hover{
+                    background: rgba(255, 255, 255, 0.57);
+                }
+            }
         }
     }
 }
 
-.paggination-button-active{
-    cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.57);
-    border: 2px solid #fff;
-    @media all and (min-width: 62em){
-        &:hover{
-            background: rgba(255, 255, 255, 0.57);
-        }
+.tabs-todo{
+    padding: 20px 0;
+    display: flex;
+    align-items: center;
+    &__tab{
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 20px;
+        text-align: center;
+        flex: 0 0 33%;
+        color: #fff;
+        border-bottom: 2px solid #fff;
     }
+}
+
+.active-tab{
+    background: #fff;
+    color: #333;
 }
 
 .list-move, 
