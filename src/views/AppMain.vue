@@ -21,7 +21,7 @@
 <style lang="scss" scoped>
 .main{
     &__container{
-        padding: 80px 0;
+        padding: 80px 15px;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -38,6 +38,9 @@
         line-height: 114%;
         color: #FFFFFF;
         margin-bottom: 30px;
+        @media all and (max-width: 48em) {
+            font-size: 2.5rem;
+        }
     }
     &__description{
         font-weight: 700;
@@ -45,6 +48,9 @@
         line-height: 160%;
         color: #FFFFFF;
         margin-bottom: 25px;
+        @media all and (max-width: 48em) {
+            font-size: 1rem;
+        }
     }
 }
 </style>

@@ -27,5 +27,12 @@ export default {
             color: #333;
         }
     }
+    &:disabled{
+        cursor: not-allowed;
+        &:hover{
+            background: transparent;
+            color: #fff;
+        }
+    }
 }
 </style>

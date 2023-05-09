@@ -7,13 +7,13 @@
             <nav class="header__nav" :class="{'nav-active': isBurgerActive}">
                 <ul class="header__list">
                     <li class="header__item">
-                        <router-link class="header__link" to="/" active-class="active-router-link">Introduction</router-link>
+                        <router-link class="header__link" :to="{name: 'main'}" active-class="active-router-link">Introduction</router-link>
                     </li>
                     <li class="header__item">
-                        <router-link class="header__link" to="/todo" active-class="active-router-link">Todo</router-link>
+                        <router-link class="header__link" :to="{name: 'todolist'}" active-class="active-router-link">Todo</router-link>
                     </li>
                     <li class="header__item">
-                        <router-link class="header__link" to="/authorization" active-class="active-router-link">Authorization</router-link>
+                        <router-link class="header__link" :to="{name: 'logIn'}" active-class="active-router-link">Authorization</router-link>
                     </li>
                 </ul>
             </nav>
@@ -87,11 +87,11 @@ export default {
         transition: all .4s ease 0s;
         @media all and (max-width:48em) {
             position: fixed;
-            left: -100%;
-            top: 0;
+            left: 0;
+            top: -100%;
             width: 100%;
             height: 100%;
-            background: #2ebf91;
+            background: rgb(165, 50, 71);
             z-index: 100;
             padding: 80px 40px;
             overflow: auto;
@@ -169,7 +169,7 @@ export default {
 }
 
 .scrolled{
-    background: rgba(165,50,71,255);
+    background: rgb(51, 147, 126);
     border-bottom: 1px solid #fff;
 }
 
@@ -190,7 +190,7 @@ export default {
 }
 
 .nav-active{
-    left: 0;
+    top: 0;
 }
 
 .active-router-link {

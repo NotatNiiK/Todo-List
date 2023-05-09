@@ -49,41 +49,6 @@ body {
   font-family: Montserrat;
   font-weight: 500;
   color: #fff;
-  background: url("../img/bg.jpg") center/cover no-repeat fixed;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #6a1bb3;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #6a1be2;
-}
-
-* {
-  scrollbar-color: #6a1bb3 #f1f1f1;
-}
-
-*::-moz-scrollbar {
-  width: 10px;
-}
-
-*::-moz-scrollbar-track {
-  background-color: #f1f1f1;
-}
-
-*::-moz-scrollbar-thumb {
-  background-color: #6a1bb3;
-}
-
-*::-moz-scrollbar-thumb:hover {
-  background-color: #6a1be2;
+  background: rgb(182, 244, 146);
+  background: linear-gradient(to right, rgb(182, 244, 146) 0%, rgb(51, 139, 147) 100%);
 }/*# sourceMappingURL=style.css.map */

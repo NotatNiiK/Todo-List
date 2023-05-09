@@ -10,28 +10,34 @@
 <script>
 export default {
     name: 'AppInput',
-    props: ['modelValue'],
-    emits: ['update:task']
+    props: {
+        modelValue: String
+    },
+    emits: ['update:modelValue']
 }
 </script>
 
 <style lang="scss" scoped>
 .input{
-    color: #fff;
-    font-size: 1.2rem;
-    padding: 8px 12px;
-    background: none;
+    font-size: 1rem;
+    width: 100%;
+    padding: 15px 20px;
+    background: #FFFFFF;
+    border-radius: 5px;
     border: none;
-    border-bottom: 3px solid #fff;
+    margin-bottom: 22px;
     transition: all .4s ease 0s;
-    &:focus{
-        border-color: #9e2e6c;
-    }
     &::placeholder{
-        font-weight: 700;
-        font-size: 1.25rem;
-        line-height: 160%;
-        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        line-height: 200%;
+        color: rgba(51, 51, 51, 0.6);
+    }
+    &:focus{
+        box-shadow: 0px 0px 10px #fff;
+    }
+    &:disabled{
+        cursor: not-allowed;
+        background: #d7d5d5;
     }
 }
 </style>

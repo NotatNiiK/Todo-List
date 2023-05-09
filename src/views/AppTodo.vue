@@ -3,23 +3,33 @@
         <app-header />
         <section class="todo">
             <div class="todo__container">
-                <div class="todo__body">
+                <div class="todo__please-log-in please-log-in" v-if="!canUserUseApp">
+                   <h2 class="please-log-in__title">Please log in to your account!</h2>
+                   <div class="please-log-in__img">
+                        <img src="@/assets/img/please-log-in.jpg" alt="Log in">
+                   </div>
+                </div>
+                <div class="todo__body" v-else>
                     <form action="#" @submit.prevent class="todo__form">
                         <div class="todo__inputs" v-if="currentPage === 1">
-                            <app-input 
-                                class="todo__input" 
-                                placeholder="Add task..." 
-                                v-model="task" 
-                                @focus="inputFocus"
-                                @blur="blurInput"
-                            ></app-input>
-                            <app-button class="todo__button" @click="createTodo">Add</app-button>
-                            <app-button class="todo__button" @click="clearTodos">Clear all</app-button>
+                            <div>
+                                <input type="text"
+                                    class="todo__input" 
+                                    placeholder="Add task..." 
+                                    v-model.trim="task" 
+                                    @focus="inputFocus"
+                                    @blur="blurInput"
+                                />
+                            </div>
+                            <div>
+                                <app-button class="todo__button" @click="createTodo">Add</app-button>
+                                <app-button class="todo__button" @click="clearTodos">Clear all</app-button>
+                            </div>
                         </div>
                         <transition>
                             <div class="todo__validation" v-if="isValidationNotCorrect">{{ validationText }}</div>
                         </transition>
-                       <!--  <div class="todo__tabs tabs-todo">
+                        <div class="todo__tabs tabs-todo">
                             <button 
                                 class="tabs-todo__tab" 
                                 @click="changeTab('all')"
@@ -41,15 +51,11 @@
                             >
                                 Completed
                             </button>
-                        </div> -->
-                        <div class="todo__statistic">
-                            <p>Number of tasks: <strong>{{ todos.length }}</strong></p>
-                            <p>Ready tasks: <strong>{{ readyTasks }}</strong></p>
                         </div>
                     </form>
-                    <transition-group name="list" tag="ul" class="todo__list" v-if="todos.length !== 0">
+                    <transition-group name="list" tag="ul" class="todo__list" v-if="visibleTodos().length !== 0">
                         <todo-item 
-                            v-for="todo in visibleTodos" 
+                            v-for="todo in visibleTodos()" 
                             :key="todo.id" 
                             :todo="todo" 
                             @delete="deleteTodo"
@@ -58,13 +64,13 @@
                         />
                     </transition-group>
                     <div class="todo__empty" v-else>Create some task!</div>
-                    <div class="todo__paggination" v-if="todos.length > 5 && visibleTodos.length !== 0">
+                    <div class="todo__paggination" v-if="isPagginationVisible">
                         <button 
                             class="todo__paggination-button" 
                             v-for="(n, idx) in pages" 
                             :key="idx"
                             @click="changePage(n)"
-                            :disabled="isPagginationButtonActive(n)"
+                            :disabled="isPagginationButtonDisabled(n)"
                         >
                             {{ n }}
                         </button>
@@ -79,7 +85,6 @@
 import AppHeader from '../components/AppHeader';
 import TodoItem from '../components/TodoItem.vue';
 import generateTime from '@/api/generateTime';
-import getTodos from '@/api/api';
 export default {
     components: {
         AppHeader,
@@ -87,6 +92,7 @@ export default {
     },
     data(){
         return {
+            canUserUseApp: null,
             task: '',
             isValidationNotCorrect: false,
             validationText: '',
@@ -95,7 +101,9 @@ export default {
             startIndex: 0,
             endIndex: 5,
             currentPage: 1,
-            filteredBy: 'all'
+            filteredBy: 'all',
+            isPagginationVisible: false,
+            pages: 1,
         }
     },
     methods: {
@@ -106,7 +114,6 @@ export default {
                 isEdited: false,
                 time: generateTime()
             }
-            console.log(newTodo)
             const isTodoInArray = this.todos.find(todo => todo.title.toLowerCase() === newTodo.title.toLowerCase());
             if(this.task.length === 0){
                 this.isValidationNotCorrect = true;
@@ -114,7 +121,6 @@ export default {
             }
             if(!isTodoInArray && this.task.length > 0){
                 this.todos.unshift(newTodo);
-                localStorage.setItem('todos', JSON.stringify(this.todos));
                 this.task = '';
             }
             if(isTodoInArray){
@@ -124,35 +130,33 @@ export default {
         },
         deleteTodo(ID){
             this.todos = this.todos.filter(todo => todo.id !== ID);
-            if(this.todos.length % 5 === 0){
+            if((this.visibleTodos().length % 5 === 0) && this.currentPage !== 1){
                 this.currentPage--;
                 this.changePage(this.currentPage)
             }
-            localStorage.setItem('todos', JSON.stringify(this.todos));
         },
         saveChange(todo){
-            this.saveTodoChangeInStorage(todo, 'title')
+            this.saveTodoChange(todo, 'title')
         },
         changePage(n){
             this.currentPage = n;
             this.endIndex = this.currentPage * this.maxTasksPerPage
             this.startIndex = this.endIndex - this.maxTasksPerPage;
         },
-        isPagginationButtonActive(n){
-            const isActive = this.currentPage === n;
+        isPagginationButtonDisabled(n){
+            const isActive = Number(this.currentPage) === n;
             return isActive;
         },
         readyTodo(todo){
-            this.saveTodoChangeInStorage(todo, 'completed')
+            this.saveTodoChange(todo, 'completed')
         },
-        saveTodoChangeInStorage(someTodo, key){
+        saveTodoChange(someTodo, key){
             for(let i = 0; i < this.todos.length; i++){
                 const todo = this.todos[i];
                 if(todo.id === someTodo.id){
                     todo[key] = someTodo[key];
                 }
             }
-            localStorage.setItem('todos', JSON.stringify(this.todos));
         },
         inputFocus(e){
             this.isValidationNotCorrect = false;
@@ -163,63 +167,124 @@ export default {
         },
         clearTodos(){
             this.todos = [];
-            localStorage.clear();
+            localStorage.removeItem('todos');
+            this.isPagginationVisible = false;
         },
-        /* changeTab(value){
+        changeTab(value){
+            if(this.filteredBy === value){
+                return;
+            }
             this.filteredBy = value;
             this.startIndex = 0;
             this.endIndex = 5;
             this.currentPage = 1;
-        } */
+        },
+        visibleTodos(){
+            if(this.filteredBy === 'completed'){
+                const todosArr = this.todos.filter(todo => todo.completed);
+                this.pages = Math.ceil(todosArr.length / this.maxTasksPerPage);
+                if(todosArr.length > 5){
+                    this.isPagginationVisible = true;
+                }
+                else{
+                    this.isPagginationVisible = false;
+                }
+                return todosArr.slice(this.startIndex, this.endIndex);
+            }
+            if(this.filteredBy === 'pending'){
+                const todosArr = this.todos.filter(todo => !todo.completed);
+                this.pages = Math.ceil(todosArr.length / this.maxTasksPerPage);
+                if(todosArr.length > 5){
+                    this.isPagginationVisible = true;
+                }
+                else{
+                    this.isPagginationVisible = false;
+                }
+                return todosArr.slice(this.startIndex, this.endIndex);
+            }
+            if(this.filteredBy === 'all'){
+                const todosArr = this.todos;
+                this.pages = Math.ceil(todosArr.length / this.maxTasksPerPage);
+                if(todosArr.length > 5){
+                    this.isPagginationVisible = true;
+                }
+                else{
+                    this.isPagginationVisible = false;
+                }
+                return todosArr.slice(this.startIndex, this.endIndex);
+            }
+        },
+        saveCurrentPageChangesInURL(page){
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('page', page);
+            const newUrl = window.location.origin + window.location.pathname + '?' + urlParams.toString();
+            window.history.pushState({path:newUrl},'',newUrl);
+        }
     },
     mounted(){
-        getTodos();
-        this.todos = JSON.parse(localStorage.getItem('todos'));
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageValue = urlParams.get('page') || this.currentPage;
+        this.changePage(pageValue);
+        this.currentPage = pageValue;
+        this.saveCurrentPageChangesInURL(pageValue);
+        if(JSON.parse(localStorage.getItem('canUserUseApp'))){
+            this.canUserUseApp = true;
+        }
+        this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+        this.pages = Math.ceil(this.todos?.length / this.maxTasksPerPage);
     },
     watch: {
         task(newValue){
             if(newValue.length > 0){
                 this.isValidationNotCorrect = false;
             }
+        },
+        todos: {
+            handler(newValue){
+                localStorage.setItem('todos', JSON.stringify(newValue));
+            },
+            deep: true
+        },
+        currentPage(newValue){
+            this.saveCurrentPageChangesInURL(newValue);
         }
     },
-    computed:{
-        pages(){
-            return Math.ceil(this.todos.length / this.maxTasksPerPage); 
-        },
-        visibleTodos(){
-           /*  if(this.filteredBy === 'all'){
-                return this.todos.slice(this.startIndex, this.endIndex);
-            }
-            if(this.filteredBy === 'pending'){
-                return this.todos.slice(this.startIndex, this.endIndex).filter(todo => !todo.completed);
-            }
-            return this.todos.slice(this.startIndex, this.endIndex).filter(todo => todo.completed); */
-            return this.todos.slice(this.startIndex, this.endIndex);
-        },
-        readyTasks(){
-            return this.todos.filter(todo => todo.completed).length;
-        }
-    }
 }
 </script>
 
 <style lang="scss" scoped>
 .todo{
     padding: 100px 0 40px;
-    flex: 1 1 auto;
     &__form{
         padding: 40px 0;
     }
     &__inputs{
         display: flex;
         @media all and (max-width: 48em){
+            flex-direction: column;
+        }
+        div{
+            &:first-child{
+                flex: 1 1 auto;   
+                 @media all and (max-width: 48em){
+                    flex: 0 1 auto;
+                 }
+            }
+            &:last-child{
+                @media all and (max-width: 48em){
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 15px;
+                }
+                @media all and (max-width: 30em){
+                    justify-content: center;
+                }
+            }
         }
     }
     &__input{
-        @media all and (max-width: 48em){
-            flex: 0 0 600px;
-        }
+        width: 100%;
+        height: 100%;
     }
     &__validation{
         color: red;
@@ -229,9 +294,30 @@ export default {
     &__button{
         flex: 0 0 120px;
         margin-left: 15px;
+        padding-left: 30px;
+        padding-right: 30px;
+        @media all and (max-width: 48em){
+            flex: 0 1 auto;
+        }
     }
     &__input{
         flex: 1 1 auto;
+        color: #fff;
+        font-size: 1.2rem;
+        padding: 8px 12px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid #fff;
+        transition: all .4s ease 0s;
+        &:focus{
+            box-shadow: 2px 2px 2px #fff;
+        }
+        &::placeholder{
+            font-weight: 700;
+            font-size: 1.25rem;
+            line-height: 160%;
+            color: rgba(255, 255, 255, 0.8);
+        }
     }
     &__empty{
         font-size: 1.2rem;
@@ -241,18 +327,6 @@ export default {
         text-transform: uppercase;
         font-weight: 700;
         letter-spacing: 2px;
-    }
-    &__statistic{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 25px 0 0;
-        font-size: 1rem;
-        p{
-            &:first-child{
-                margin-right: 15px;
-            }
-        }
     }
     &__paggination{
         display: flex;
@@ -304,12 +378,40 @@ export default {
         flex: 0 0 33%;
         color: #fff;
         border-bottom: 2px solid #fff;
+        @media all and (max-width: 30em){
+            margin-top: 10px;
+            font-size: 0.875rem;
+            padding: 15px;
+        }
     }
 }
 
 .active-tab{
     background: #fff;
     color: #333;
+}
+
+.please-log-in{
+    padding: 120px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    &__title{
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 48px;
+        line-height: 54px;
+        color: #FFFFFF;
+        margin-bottom: 30px;
+    }
+    &__img{
+        width: 220px;
+        height: 220px;
+        img{
+            max-width: 100%;
+        }
+    }
 }
 
 .list-move, 

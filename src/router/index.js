@@ -3,15 +3,23 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
+    name: 'main',
     component: () => import('../views/AppMain')
   },
   {
     path: '/todo',
+    name: 'todolist',
     component: () => import('../views/AppTodo')
   },
   {
-    path: '/authorization',
-    component: () => import('../views/AppAuth')
+    path: '/logIn',
+    name: 'logIn',
+    component: () => import('../views/AppLogIn')
+  },
+  {
+    path: '/registration',
+    name: 'registration',
+    component: () => import('../views/AppRegistration')
   },
   {
     path: '/:pathMatch(.*)*',

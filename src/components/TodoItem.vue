@@ -43,6 +43,11 @@ export default {
             tmpTodoTitle: ''
         }
     },
+    emits: {
+        delete: null,
+        saveChange: null,
+        readyTodo: null
+    },
     methods: {
         deleteTodo(){
             const todoID = this.todo.id;
@@ -56,7 +61,7 @@ export default {
             }, 0);
         },
         saveTodoEdit(){
-            if(this.localTodo.title !== this.tmpTodoTitle){
+            if(this.localTodo.title.trim() !== this.tmpTodoTitle.trim()){
                 this.localTodo.isEdited = true;
             }
             this.isEditNotActive = true;
@@ -88,12 +93,16 @@ export default {
     align-items: center;
     justify-content: space-between;
     background: rgba(255, 255, 255, 0.81);
+    border: 1px dashed rgba(255, 255, 255, 0.81);
     border-radius: 5px;
     padding: 10px 25px;
     margin-bottom: 30px;
     transition: all .3s ease 0s;
     @media all and (max-width: 48em){
         display: block;
+    }
+    &:hover{
+        box-shadow: 0px 0px 10px #fff;
     }
 
     &__content{
@@ -118,15 +127,20 @@ export default {
         min-width: 200px;
         border: none;
         outline: none;
-        padding: 7px 5px;
+        padding: 10px;
         border-radius: 5px;
         font-size: 1.2rem;
         resize: none;
+        white-space: pre-wrap;
     }
     &__edit{
         display: flex;
         align-items: flex-end;
         margin-bottom: 10px;
+        @media all and (max-width: 30em){
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
     &__edit-button{
         cursor: pointer;
@@ -135,14 +149,17 @@ export default {
         border-radius: 5px;
         color: #000;
         font-size: 1.2rem;
-        border: 2px solid #8E2DE2;
+        border: 2px solid rgb(51, 147, 126);
         margin-left: 10px;
         transition: all .4s ease 0s;
         @media all and (min-width: 62em){
             &:hover{
-                background: #8E2DE2;
+                background: rgb(51, 147, 126);
                 color: #fff;
             }
+        }
+        @media all and (max-width: 30em){
+            margin: 10px 0 0;
         }
     }
     &__time{
@@ -190,9 +207,11 @@ export default {
 }
 
 .isReady{
-    border: 2px dashed #fff;
     color: #fff;
     background: #2ebf91;
+    &:hover{
+        box-shadow: 0px 0px 10px #2ebf91;
+    }
     .item-todo__title{
         color: #fff;
     }
